@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pickle
 import argparse
+from tqdm import tqdm
 
 
 def get_arguments():
@@ -22,7 +23,7 @@ def cifarTo_png(export_path,batch_files_path, df, classes_name,test=False,percen
     if test:
         print("Starting")
         d = unpickle(batch_files_path+"/test_batch")
-        for j in range(len(d[b'labels'])):
+        for j in tqdm(range(len(d[b'labels'])), total=len(d[b'labels'])):
             img = d[b'data'][j].reshape(3,32,32).transpose(1,2,0)
             name = df['name'][j].strip("b'")
             plt.imsave(f"{export_path}/test/{classes_name[d[b'labels'][j]]}/{name}", img)
@@ -30,9 +31,9 @@ def cifarTo_png(export_path,batch_files_path, df, classes_name,test=False,percen
 
     else:
         print("Starting")
-        for i in range(1,6):
-            d = unpickle(batch_files_path + f"/data_batch_{i}")
-            for name in df['name']:
+        for name in tqdm(df['name'], total=len(df['name'])):
+            for i in range(1,6):
+                d = unpickle(batch_files_path + f"/data_batch_{i}")
                 for j in range(len(d[b'labels'])):
                     name_d = d[b'filenames'][j].decode("utf-8")
                     if name == name_d:
