@@ -43,10 +43,10 @@ def cifarTo_png(export_path,batch_files_path, df, classes_name,test=False,percen
 
 def main(args):
     
-    df_train_100 = pd.read_csv(args.df_path + "/Cifar10_train_split_100")
-    df_train_10 = pd.read_csv(args.df_path + "/Cifar10_train_split_10")
-    df_train_1 = pd.read_csv(args.df_path + "/Cifar10_train_split_1")
-    df_name_test = pd.read_csv(args.df_path + "/Cifar10_test")
+    df_train_100 = pd.read_csv(args.df_path + "/Cifar10_train_split_100.csv")
+    df_train_10 = pd.read_csv(args.df_path + "/Cifar10_train_split_10.csv")
+    df_train_1 = pd.read_csv(args.df_path + "/Cifar10_train_split_1.csv")
+    df_name_test = pd.read_csv(args.df_path + "/Cifar10_test.csv")
 
 
     classes_name = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck']
