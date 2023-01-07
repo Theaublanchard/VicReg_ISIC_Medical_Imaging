@@ -23,6 +23,7 @@ import torch
 from tqdm import tqdm
 
 import resnet
+import numpy as np
 
 
 def get_arguments():
@@ -190,15 +191,13 @@ def main_worker(args):
         best_acc = argparse.Namespace(top1=0, top5=0)
 
     # Data loading code
-    traindir = args.data_dir / f"train_{args.train_percent}"
-    valdir = args.data_dir / "test"
+    # traindir = args.data_dir / f"train_{args.train_percent}"
+    # valdir = args.data_dir / "test"
     normalize = transforms.Normalize(
         mean=[0.49139968, 0.48215841, 0.44653091], std=[0.24703223, 0.24348513, 0.26158784]
     )
 
-    train_dataset = datasets.ImageFolder(
-        traindir,
-        transforms.Compose(
+    train_dataset_100 = datasets.CIFAR10(root= args.data_dir,train=True,download=True,transform=transforms.Compose(
             [   
                 transforms.ToTensor(),
                 transforms.ConvertImageDtype(torch.float32),
@@ -210,9 +209,10 @@ def main_worker(args):
         )
     )
 
-    val_dataset = datasets.ImageFolder(
-        valdir,
-        transforms.Compose(
+    idx_to_keep = np.random.choice(len(train_dataset_100), int(len(train_dataset_100)*args.train_percent/100), replace=False)
+    train_dataset = torch.utils.data.Subset(train_dataset_100, idx_to_keep)
+
+    val_dataset = datasets.CIFAR10(root= args.data_dir,train=False,download=True,transform= transforms.Compose(
             [
                 transforms.ToTensor(),
                 transforms.ConvertImageDtype(torch.float32),

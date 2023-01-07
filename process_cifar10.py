@@ -19,27 +19,29 @@ def unpickle(file):
         dict = pickle.load(fo, encoding='bytes')
     return dict
 
-def cifarTo_png(export_path,batch_files_path, df, classes_name,test=False,percent=100):
+def cifarTo_png(export_path, batch_files_path, df, classes_name, test=False, percent=100):
+    
     if test:
-        print("Starting")
+        print("Starting test")
         d = unpickle(batch_files_path+"/test_batch")
-        for j in tqdm(range(len(d[b'labels'])), total=len(d[b'labels'])):
-            img = d[b'data'][j].reshape(3,32,32).transpose(1,2,0)
-            name = df['name'][j].strip("b'")
-            plt.imsave(f"{export_path}/test/{classes_name[d[b'labels'][j]]}/{name}", img)
+        names = d[b'filenames']
+        labels = d[b'labels']
+        data = d[b'data']
+        for name, label, dat in (zip(names, labels, data)):
+            img = dat.reshape(3,32,32).transpose(1,2,0)
+            name = name.decode("utf-8")
+            plt.imsave(f"{export_path}/test/{classes_name[label]}/{name}", img)
         print("Done")
-
     else:
-        print("Starting")
-        for name in tqdm(df['name'], total=len(df['name'])):
-            for i in range(1,6):
-                d = unpickle(batch_files_path + f"/data_batch_{i}")
-                for j in range(len(d[b'labels'])):
-                    name_d = d[b'filenames'][j].decode("utf-8")
-                    if name == name_d:
-                        img = d[b'data'][j].reshape(3,32,32).transpose(1,2,0)
-                        plt.imsave(f"{export_path}/train_{percent}/{classes_name[d[b'labels'][j]]}/{name_d}", img)
-                        break
+        print("Starting train")
+        for j in range(1,6):
+            d = unpickle(f"{batch_files_path}/data_batch_{j}")
+            print(f"Batch {j}, number of images : {len(d[b'labels'])}")
+            for i in range(len(d[b'labels'])):
+                if df["name"].str.contains(d[b'filenames'][i].decode("utf-8")).any():
+                    img = d[b'data'][i].reshape(3,32,32).transpose(1,2,0)
+                    name = d[b'filenames'][i].decode("utf-8")
+                    plt.imsave(f"{export_path}/train_{percent}/{classes_name[d[b'labels'][i]]}/{name}", img)
         print("Done")
 
 def main(args):
@@ -68,6 +70,6 @@ def main(args):
 
 
 if __name__=="__main__":
-    parser = argparse.ArgumentParser('VICReg training script', parents=[get_arguments()])
+    parser = argparse.ArgumentParser('CIFAR10 processing script', parents=[get_arguments()])
     args = parser.parse_args()
     main(args)

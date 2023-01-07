@@ -97,8 +97,8 @@ def main(args):
 
     transforms = aug.TrainTransform()
 
-    dataset = datasets.ImageFolder(args.data_dir / "train_100", transforms)
-    # dataset = datasets.CIFAR10(root = args.data_dir, train=True, download=True, transform=transforms)
+    # dataset = datasets.ImageFolder(args.data_dir / "train_100", transforms)
+    dataset = datasets.CIFAR10(root = args.data_dir, train=True, download=True, transform=transforms)
     # sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=True)
     assert args.batch_size % args.world_size == 0
     per_device_batch_size = args.batch_size // args.world_size

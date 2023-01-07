@@ -38,12 +38,12 @@ class TrainTransform(object):
     def __init__(self):
         self.transform = transforms.Compose(
             [
-                transforms.ToTensor(),
-                transforms.ConvertImageDtype(torch.float32),
+                # transforms.ToTensor(),
+                # transforms.ConvertImageDtype(torch.float32),
                 # transforms.RandomResizedCrop(
                 #     224, interpolation=InterpolationMode.BICUBIC
                 # ),
-                transforms.ToPILImage(),
+                # transforms.ToPILImage(),
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.RandomApply(
                     [
@@ -65,12 +65,12 @@ class TrainTransform(object):
         )
         self.transform_prime = transforms.Compose(
             [
-                transforms.ToTensor(),
-                transforms.ConvertImageDtype(torch.float32),
+                # transforms.ToTensor(),
+                # transforms.ConvertImageDtype(torch.float32),
                 # transforms.RandomResizedCrop(
                 #     224, interpolation=InterpolationMode.BICUBIC
                 # ),
-                transforms.ToPILImage(),
+                # transforms.ToPILImage(),
                 transforms.RandomHorizontalFlip(p=0.5),
                 transforms.RandomApply(
                     [
