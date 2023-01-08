@@ -193,12 +193,14 @@ def main_worker(args):
     # Data loading code
     traindir = args.data_dir / f"train_{args.train_percent}"
     valdir = args.data_dir / "test"
+    isic_mean = torch.tensor([0.6116, 0.4709, 0.4692])
+    isic_std = torch.tensor([0.2560, 0.2217, 0.2273])
     normalize = transforms.Normalize(
-        mean=[0.49139968, 0.48215841, 0.44653091], std=[0.24703223, 0.24348513, 0.26158784]
-    )
+        mean=isic_mean, std=isic_std
+        )
 
     train_dataset = datasets.ImageFolder(
-        traindir,
+        traindir,transform=
         transforms.Compose(
             [
                 transforms.ToTensor(),
@@ -212,28 +214,14 @@ def main_worker(args):
         ),
     )
 
-    train_dataset_100 = datasets.CIFAR10(root= args.data_dir,train=True,download=True,transform=transforms.Compose(
-            [   
-                transforms.ToTensor(),
-                transforms.ConvertImageDtype(torch.float32),
-                # transforms.RandomResizedCrop(224),
-                transforms.RandomHorizontalFlip(),
-                # transforms.ToTensor(),
-                normalize,
-            ]
-        )
-    )
-
-    # idx_to_keep = np.random.choice(len(train_dataset_100), int(len(train_dataset_100)*args.train_percent/100), replace=False)
-    # train_dataset = torch.utils.data.Subset(train_dataset_100, idx_to_keep)
-
-    val_dataset = datasets.CIFAR10(root= args.data_dir,train=False,download=True,transform= transforms.Compose(
+    val_dataset =  datasets.ImageFolder(
+        valdir,transform=
+        transforms.Compose(
             [
                 transforms.ToTensor(),
-                transforms.ConvertImageDtype(torch.float32),
-                # transforms.Resize(256),
-                # transforms.CenterCrop(224),
-                # transforms.ToTensor(),
+                augmentations.CropMainAxis(),
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
                 normalize,
             ]
         ),
@@ -258,9 +246,9 @@ def main_worker(args):
     #     train_dataset, sampler=train_sampler, **kwargs
     # )
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, **kwargs
+        train_dataset,shuffle=True, **kwargs
     )
-    val_loader = torch.utils.data.DataLoader(val_dataset, **kwargs)
+    val_loader = torch.utils.data.DataLoader(val_dataset,shuffle=True ,**kwargs)
 
     start_time = time.time()
     for epoch in range(start_epoch, args.epochs):
