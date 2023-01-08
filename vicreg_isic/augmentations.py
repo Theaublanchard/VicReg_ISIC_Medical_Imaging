@@ -41,6 +41,7 @@ class Solarization(object):
             return ImageOps.solarize(img)
         else:
             return img
+            
 isic_mean = torch.tensor([0.6116, 0.4709, 0.4692])
 isic_std = torch.tensor([0.2560, 0.2217, 0.2273])
 
@@ -59,7 +60,7 @@ class TrainTransform(object):
                 transforms.RandomRotation(360),
                 GaussianBlur(p=1.),
                 transforms.RandomApply([
-                    transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.)
+                    transforms.ColorJitter(brightness=0.6, contrast=0.6, saturation=0.2, hue=0.)
                     ], p=0.8),
                 transforms.ToTensor(),
                 transforms.Normalize(isic_mean, isic_std),
@@ -77,65 +78,11 @@ class TrainTransform(object):
                 transforms.RandomRotation(360),
                 GaussianBlur(p=0.1),
                 transforms.RandomApply([
-                    transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.2, hue=0.)
+                    transforms.ColorJitter(brightness=0.1, contrast=0.2, saturation=0.1, hue=0.)
                     ], p=0.8),
                 transforms.ToTensor(),
                 transforms.Normalize(isic_mean, isic_std)   
             ])  
-        self.transform = transforms.Compose(
-            [
-                # transforms.ToTensor(),
-                # transforms.ConvertImageDtype(torch.float32),
-                # transforms.RandomResizedCrop(
-                #     224, interpolation=InterpolationMode.BICUBIC
-                # ),
-                # transforms.ToPILImage(),
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomApply(
-                    [
-                        transforms.ColorJitter(
-                            brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1
-                        )
-                    ],
-                    p=0.8,
-                ),
-                transforms.RandomGrayscale(p=0.2),
-                GaussianBlur(p=.5),
-                Solarization(p=0.0),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    # mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225] #imageNet
-                    mean=[0.49139968, 0.48215841, 0.44653091], std=[0.24703223, 0.24348513, 0.26158784] #CIFAR10#
-                ),
-            ]
-        )
-        self.transform_prime = transforms.Compose(
-            [
-                # transforms.ToTensor(),
-                # transforms.ConvertImageDtype(torch.float32),
-                # transforms.RandomResizedCrop(
-                #     224, interpolation=InterpolationMode.BICUBIC
-                # ),
-                # transforms.ToPILImage(),
-                transforms.RandomHorizontalFlip(p=0.5),
-                transforms.RandomApply(
-                    [
-                        transforms.ColorJitter(
-                            brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1
-                        )
-                    ],
-                    p=0.8,
-                ),
-                transforms.RandomGrayscale(p=0.2),
-                GaussianBlur(p=0.1),
-                Solarization(p=0.2),
-                transforms.ToTensor(),
-                transforms.Normalize(
-                    # mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225] #imageNet
-                    mean=[0.49139968, 0.48215841, 0.44653091], std=[0.24703223, 0.24348513, 0.26158784] #CIFAR10
-                ),
-            ]
-        )
 
     def __call__(self, sample):
         x1 = self.transform(sample)

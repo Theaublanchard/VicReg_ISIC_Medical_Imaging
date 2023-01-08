@@ -97,7 +97,7 @@ def main(args):
 
     transforms = aug.TrainTransform()
 
-    dataset = datasets.ImageFolder(args.data_dir / "train_100", transforms,shuffle=True)
+    dataset = datasets.ImageFolder(args.data_dir / "train_100", transforms)
     # sampler = torch.utils.data.distributed.DistributedSampler(dataset, shuffle=True)
     assert args.batch_size % args.world_size == 0
     per_device_batch_size = args.batch_size // args.world_size
@@ -113,15 +113,15 @@ def main(args):
     model = VICReg(args).cuda(gpu)
     # model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
-    # optimizer = LARS(
-    #     model.parameters(),
-    #     lr=0,
-    #     weight_decay=args.wd,
-    #     weight_decay_filter=exclude_bias_and_norm,
-    #     lars_adaptation_filter=exclude_bias_and_norm,
-    # )
+    optimizer = LARS(
+        model.parameters(),
+        lr=0,
+        weight_decay=args.wd,
+        weight_decay_filter=exclude_bias_and_norm,
+        lars_adaptation_filter=exclude_bias_and_norm,
+    )
     # print(model.backbone)
-    optimizer = optim.Adam(model.parameters(), lr=0, weight_decay=args.wd,)
+    # optimizer = optim.Adam(model.parameters(), lr=0, weight_decay=args.wd,)
 
     if (args.exp_dir / "model.pth").is_file():
         # if args.rank == 0:
@@ -148,8 +148,8 @@ def main(args):
             lr = adjust_learning_rate(args, optimizer, loader, step)
 
             optimizer.zero_grad()
-            with torch.cuda.amp.autocast():
-                loss = model.forward(x, y)
+            # with torch.cuda.amp.autocast():
+            loss = model.forward(x, y)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()

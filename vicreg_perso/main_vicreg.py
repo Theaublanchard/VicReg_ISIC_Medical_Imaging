@@ -149,8 +149,8 @@ def main(args):
             lr = adjust_learning_rate(args, optimizer, loader, step)
 
             optimizer.zero_grad()
-            with torch.cuda.amp.autocast():
-                loss = model.forward(x, y)
+            # with torch.cuda.amp.autocast():
+            loss = model.forward(x, y)
             scaler.scale(loss).backward()
             scaler.step(optimizer)
             scaler.update()

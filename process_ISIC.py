@@ -23,10 +23,8 @@ def export_zip(zip_path, export_path,df):
 
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         name_file = zip_ref.namelist()[2:-1]
-        clean_name_file = [n.split("/")[-1].split(".")[0].replace("_downsampled", "") for n in name_file]
 
-
-        for i,clean_name in tqdm(enumerate(df["image"]), total=len(df)):
+        for i,_ in tqdm(enumerate(df["image"]), total=len(df)):
             export_file_path = os.path.join(export_path, df["class"][i])
             zip_ref.extract(name_file[i], export_file_path)
 
