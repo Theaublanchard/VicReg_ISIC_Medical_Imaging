@@ -16,7 +16,7 @@ import time
 import torch
 import torch.nn.functional as F
 from torch import nn, optim
-import torch.distributed as dist
+# import torch.distributed as dist
 import torchvision.datasets as datasets
 
 import augmentations as aug
@@ -80,8 +80,8 @@ def get_arguments():
 
 
 def main(args):
-    torch.backends.cudnn.benchmark = True
-    init_distributed_mode(args)
+    # torch.backends.cudnn.benchmark = True
+    # init_distributed_mode(args)
     # print(args)
     gpu = torch.device(args.device)
 
@@ -107,21 +107,22 @@ def main(args):
         batch_size=per_device_batch_size,
         num_workers=args.num_workers,
         pin_memory=True,
+        shuffle=True,
         # sampler=sampler,
     )
 
     model = VICReg(args).cuda(gpu)
     # model = nn.SyncBatchNorm.convert_sync_batchnorm(model)
     # model = torch.nn.parallel.DistributedDataParallel(model, device_ids=[gpu])
-    # optimizer = LARS(
-    #     model.parameters(),
-    #     lr=0,
-    #     weight_decay=args.wd,
-    #     weight_decay_filter=exclude_bias_and_norm,
-    #     lars_adaptation_filter=exclude_bias_and_norm,
-    # )
+    optimizer = LARS(
+        model.parameters(),
+        lr=0,
+        weight_decay=args.wd,
+        weight_decay_filter=exclude_bias_and_norm,
+        lars_adaptation_filter=exclude_bias_and_norm,
+    )
     # print(model.backbone)
-    optimizer = optim.Adam(model.parameters(), lr=0, weight_decay=args.wd,)
+    # optimizer = optim.Adam(model.parameters(), lr=0, weight_decay=args.wd,)
 
     if (args.exp_dir / "model.pth").is_file():
         # if args.rank == 0:
@@ -196,7 +197,7 @@ def main(args):
 
 def adjust_learning_rate(args, optimizer, loader, step):
     max_steps = args.epochs * len(loader)
-    warmup_steps = 5 * len(loader)
+    warmup_steps = 10 * len(loader)
     base_lr = args.base_lr * args.batch_size / 256
     if step < warmup_steps:
         lr = base_lr * step / warmup_steps
@@ -329,28 +330,28 @@ class LARS(optim.Optimizer):
                 p.add_(mu, alpha=-g["lr"])
 
 
-def batch_all_gather(x):
-    x_list = FullGatherLayer.apply(x)
-    return torch.cat(x_list, dim=0)
+# def batch_all_gather(x):
+#     x_list = FullGatherLayer.apply(x)
+#     return torch.cat(x_list, dim=0)
 
 
-class FullGatherLayer(torch.autograd.Function):
-    """
-    Gather tensors from all process and support backward propagation
-    for the gradients across processes.
-    """
+# class FullGatherLayer(torch.autograd.Function):
+#     """
+#     Gather tensors from all process and support backward propagation
+#     for the gradients across processes.
+#     """
 
-    @staticmethod
-    def forward(ctx, x):
-        output = [torch.zeros_like(x) for _ in range(dist.get_world_size())]
-        dist.all_gather(output, x)
-        return tuple(output)
+#     @staticmethod
+#     def forward(ctx, x):
+#         output = [torch.zeros_like(x) for _ in range(dist.get_world_size())]
+#         dist.all_gather(output, x)
+#         return tuple(output)
 
-    @staticmethod
-    def backward(ctx, *grads):
-        all_gradients = torch.stack(grads)
-        dist.all_reduce(all_gradients)
-        return all_gradients[dist.get_rank()]
+#     @staticmethod
+#     def backward(ctx, *grads):
+#         all_gradients = torch.stack(grads)
+#         dist.all_reduce(all_gradients)
+#         return all_gradients[dist.get_rank()]
 
 
 def handle_sigusr1(signum, frame):

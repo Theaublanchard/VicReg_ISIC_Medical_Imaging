@@ -9,7 +9,7 @@ import zipfile
 
 def get_arguments():
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('--export_path', type=str, default='./cifar10')
+    parser.add_argument('--export_path', type=str, default='./ISIC')
     parser.add_argument('--zip_path', type=str, default='./ISIC_2019_Training_Input.zip')
     parser.add_argument('--csv_path', type=str, default='./')
     parser.add_argument('--split', type=int, default=100,choices=[1,10,100])
