@@ -141,7 +141,8 @@ def main(args):
         loss_epoch = 0
 
         seen_samples = 1
-        for step, ((x, y), _) in (pbar := tqdm(enumerate(loader, start=epoch * len(loader)), total=len(loader), desc=f"Epoch {epoch:02d}")):
+        pbar = tqdm(enumerate(loader, start=epoch * len(loader)), total=len(loader), desc=f"Epoch {epoch:02d}")
+        for step, ((x, y), _) in pbar :
             x = x.cuda(gpu, non_blocking=True)
             y = y.cuda(gpu, non_blocking=True)
 

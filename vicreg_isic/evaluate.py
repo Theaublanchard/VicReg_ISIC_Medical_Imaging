@@ -263,9 +263,9 @@ def main_worker(args):
         else:
             assert False
         # train_sampler.set_epoch(epoch)
-        for step, (images, target) in (pbar:=tqdm(enumerate(
-            train_loader, start=epoch * len(train_loader)
-        ), total=len(train_loader), desc=f"Epoch {epoch}")):
+        pbar= tqdm(enumerate( train_loader, start=epoch * len(train_loader)
+        ), total=len(train_loader), desc=f"Epoch {epoch}")
+        for step, (images, target) in pbar:
             output = model(images.cuda(gpu, non_blocking=True))
             loss = criterion(output, target.cuda(gpu, non_blocking=True))
             optimizer.zero_grad()
