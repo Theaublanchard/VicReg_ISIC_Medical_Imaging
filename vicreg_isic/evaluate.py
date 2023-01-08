@@ -159,7 +159,7 @@ def main_worker(args):
         }
     backbone.load_state_dict(state_dict, strict=False)
 
-    head = nn.Linear(embedding, 10)
+    head = nn.Linear(embedding, 8)
     head.weight.data.normal_(mean=0.0, std=0.01)
     head.bias.data.zero_()
     model = nn.Sequential(backbone, head)
