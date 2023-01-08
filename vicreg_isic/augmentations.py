@@ -27,7 +27,6 @@ class CropMainAxis:
         self.margin = margin
 
     def __call__(self, img):
-        print(len(img))
         c,w, h = img.size()
         return transforms.CenterCrop(self.margin*min(w, h))(img)
 
